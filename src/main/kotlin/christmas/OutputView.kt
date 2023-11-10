@@ -1,60 +1,65 @@
 package christmas
 
-import java.time.LocalDate
+class OutputView(private val userMenus: Map<String, Int>, private val discountCalculator: ChristmasDiscountCalculator) {
 
-class OutputView() {
+    private val totalCost = discountCalculator.getTotalPrice()
+    private val benefits = discountCalculator.getBenefits()
+    private val totalBenefit = discountCalculator.getTotalBenefit()
 
-    fun printMenu(userMenus: Map<String, Int>) {
+    private fun printMenu() {
         println("\n<주문 메뉴>")
-        userMenus.forEach { (menu, quantity) ->
-            println("$menu $quantity 개")
-        }
+        userMenus.forEach { (menu, quantity) -> println("$menu $quantity 개") }
     }
 
-    fun printTotalPrice(totalCost: Int){
-
+    private fun printTotalPrice() {
         println("\n<할인 전 총주문 금액>")
         println("${"%,d".format(totalCost)}원")
     }
 
-    fun printFreeItem(isFree: Boolean){
-
+    private fun printFreeItem() {
         println("\n<증정 메뉴>")
-        if (isFree) println("샴페인 1개")
-        else println("없음")
+        println(if (benefits[Discount.FREE_ITEM] != 0) "샴페인 1개" else "없음")
     }
 
-    fun printBenefits(benefits: Map<String, Int>){
+    private fun printBenefits() {
         println("\n<혜택 내역>")
-
-
-        val hasBenefits = benefits.any { it.value != 0 }
-
-        if (!hasBenefits) println("없음")
-        else benefits.forEach { key, value -> println("${key}: ${"%,d".format(value * -1)}원")  }
-
+        if (benefits.values.all { it == 0 }) println("없음")
+        else benefits.filterValues { it != 0 }.forEach { (key, value) ->
+            println("${key}: ${"%,d".format(value * -1)}원")
+        }
     }
 
-    fun printTotalBenefits(totalBenefit: Int): Int{
+    private fun printTotalBenefits(): Int {
         println("\n<총혜택 금액>")
         println("${"%,d".format(totalBenefit * -1)}원")
         return totalBenefit
     }
 
-    fun printDiscountedTotalPrice(benefits: Map<String, Int>, totalCost: Int, totalBenefit: Int){
+    private fun printDiscountedTotalPrice() {
         println("\n<할인 후 예상 결제 금액>")
-        if (benefits["증정 이벤트"] !=0) println("${"%,d".format(totalCost-totalBenefit + 25000)}원")
-        else println("${"%,d".format(totalCost-totalBenefit)}원")
+        val discountedTotal = totalCost - totalBenefit
+        val freeItemDiscount = if (benefits[Discount.FREE_ITEM] != 0) 25000 else 0
+        println("${"%,d".format(discountedTotal + freeItemDiscount)}원")
     }
 
-    fun printBadge(totalBenefit: Int){
-
+    private fun printBadge() {
         println("\n<12월 이벤트 배지>")
 
-        if (totalBenefit >=20000) println("산타")
-        else if (totalBenefit >= 10000) println("트리")
-        else if(totalBenefit >= 5000) println("별")
-        else println("없음")
+        when {
+            totalBenefit >= Badge.SANTA.price -> println(Badge.SANTA.grade)
+            totalBenefit >= Badge.TREE.price -> println(Badge.TREE.grade)
+            totalBenefit >= Badge.STAR.price -> println(Badge.STAR.grade)
+            else -> println("없음")
+        }
     }
 
+    fun showFullPrompt() {
+        printMenu()
+        printTotalPrice()
+        printFreeItem()
+        printBenefits()
+        printTotalBenefits()
+        printDiscountedTotalPrice()
+        printBadge()
+    }
 }
