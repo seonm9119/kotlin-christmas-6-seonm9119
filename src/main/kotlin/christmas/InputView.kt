@@ -4,16 +4,16 @@ import camp.nextstep.edu.missionutils.Console.readLine
 class InputView {
     fun readDate(): Int {
         while (true) {
-            println("12월 중 식당 예상 방문 날짜는 언제인가요? (숫자만 입력해 주세요!)")
+            UserPrompt.EXPECTED_DAY.printMessage()
 
             try {
-                val inputs = readLine().toInt()
-                return if (inputs in 1..31) inputs else throw IllegalArgumentException()
+                return readLine().toInt().takeIf { it in 1..31 } ?:
+                throw IllegalArgumentException()
 
             } catch (e: NumberFormatException) {
-                println("[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요.")
-            } catch (e: IllegalArgumentException){
-                println("[ERROR] 유효하지 않은 날짜입니다. 다시 입력해 주세요.")
+                UserPrompt.ERROR.printMessage()
+            }catch (e: IllegalArgumentException){
+                UserPrompt.ERROR.printMessage()
             }
         }
     }
@@ -22,7 +22,7 @@ class InputView {
     fun readMenu(): Map<String, Int> {
 
         while (true) {
-            println("주문하실 메뉴를 메뉴와 개수를 알려 주세요. (e.g. 해산물파스타-2, 레드와인-1, 초코케이크-1)")
+            UserPrompt.USER_MENU.printMessage()
             try {
                 val userInput = readLine().split(',')
                     .map {
@@ -34,18 +34,18 @@ class InputView {
                     .eachCount()
                     .filter { it.value > 1 }
 
-                if (duplicateMenus.isNotEmpty()) throw IllegalArgumentException("[ERROR-4]")
-                if (userInput.sumOf { it.second } > 21) throw IllegalArgumentException("[ERROR-6]")
-                if (userInput.any { it.second == 0 }) throw IllegalArgumentException("[ERROR-2]")
+                if (duplicateMenus.isNotEmpty()) throw IllegalArgumentException()
+                if (userInput.sumOf { it.second } > 21) throw IllegalArgumentException()
+                if (userInput.any { it.second == 0 }) throw IllegalArgumentException()
 
                 return userInput.toMap()
 
             } catch (e: NumberFormatException){
-                println("[ERROR-3] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+                UserPrompt.ERROR.printMessage()
             } catch (e: IndexOutOfBoundsException){
-                println("[ERROR-3] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+                UserPrompt.ERROR.printMessage()
             } catch (e: IllegalArgumentException) {
-                println("${e.message} 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+                UserPrompt.ERROR.printMessage()
             }
         }
     }
