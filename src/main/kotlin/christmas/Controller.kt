@@ -1,57 +1,48 @@
 package christmas
 
+data class UserInputs(val visitDay: Int, val menus: Map<String, Int>, val totalPrice: Int)
+data class UserCalculations(val benefits: Map<Discount, Int>, val totalBenefitPrice: Int, val discountedPrice: Int)
+
+
 
 class Controller {
 
-    private var visitDay: Int = 0
-    private var userMenu: Map<String, Int> = emptyMap()
-    private var totalCost: Int = 0
-    private var totalBenefitPrice: Int = 0
-    private var benefits: Map<Discount, Int> = emptyMap()
+    private val outputView = OutputView()
+    private val inputView = InputView()
+    private fun getTotalPrice(userMenus: Map<String, Int>): Int =
+        userMenus.entries.sumOf { (menu, quantity) -> Menus.allMenu[menu]!! * quantity }
+    fun getUserInputs(): UserInputs{
 
-
-    private val inputView: InputView
-    private val outputView: OutputView
-    private val discountCalculator: ChristmasDiscountCalculator
-
-    init {
-
-        inputView = InputView()
-        outputView = OutputView()
-        discountCalculator = ChristmasDiscountCalculator()
+        val visitDay = inputView.readDate()
+        val userMenu = inputView.readMenu()
+        return UserInputs(visitDay, userMenu, getTotalPrice(userMenu))
 
     }
 
+    fun getUserEventCalculations(userInputs: UserInputs): UserCalculations{
 
-    fun processUserInfo() {
+        val benefits = ChristmasDiscountCalculator(userInputs).getBenefits()
+        val totalBenefitPrice = benefits.values.sum()
+        val discountedPrice = userInputs.totalPrice - totalBenefitPrice
+
+        return UserCalculations(benefits, totalBenefitPrice, discountedPrice)
+
+    }
+
+    fun runEventPlanner() {
 
         println("안녕하세요! 우테코 식당 12월 이벤트 플래너입니다.")
-        this.visitDay = inputView.readDate()
-        this.userMenu = inputView.readMenu()
+        val userInputs = getUserInputs()
+        outputView.printMenu(userInputs.menus)
+        outputView.printTotalPrice(userInputs.totalPrice)
 
-        outputView.printMenu(userMenu)
-
-        this.totalCost = discountCalculator.calculateTotalPrice(userMenu)
-        outputView.printTotalPrice(totalCost)
-
-
-
-    }
-
-    fun processBenefits(){
-
-        println("12월 ${this.visitDay}일에 우테코 식당에서 받을 이벤트 혜택 미리 보기!")
-        this.benefits = discountCalculator.calculateTotalBenefits(totalCost, visitDay, userMenu)
-        outputView.printBenefits(benefits)
-
-        this.totalBenefitPrice = discountCalculator.calculateTotalBenefitPrice()
-        outputView.printDiscountedTotalPrice(totalCost, totalBenefitPrice, benefits)
-
-        outputView.printBadge(totalBenefitPrice)
+        println("12월 ${userInputs.visitDay}일에 우테코 식당에서 받을 이벤트 혜택 미리 보기!")
+        val userCalculations = getUserEventCalculations(userInputs)
+        outputView.printBenefits(userCalculations.benefits)
+        outputView.printDiscountedTotalPrice(userCalculations)
+        outputView.printBadge(userCalculations.totalBenefitPrice)
 
     }
-
-
 
 
 }

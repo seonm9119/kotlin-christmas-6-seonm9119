@@ -1,41 +1,50 @@
 package christmas
 import java.time.LocalDate
 
-class ChristmasDiscountCalculator() {
+class ChristmasDiscountCalculator(private val userInputs: UserInputs) {
 
     private val starDay = listOf(3,10,17,24,31)
-    private val benefits = Discount.entries.associate { it to 0 }.toMutableMap()
+    private val benefits = Discount.entries.associateWith { 0 }.toMutableMap()
 
-    private fun calculateFreeItem(totalPrice: Int) =
-        if (totalPrice >= 120000) Discount.FREE_ITEM.price else 0
+    init {
 
-    private fun calculateSpecialDiscount(day: Int) =
-        if (day in starDay) Discount.SPECIAL.price else 0
+        require(userInputs.visitDay in 1..31) {UserPrompt.ERROR_DAY }
+        require(userInputs.menus.values.sum()  < 21) {UserPrompt.ERROR_MENU}
+        require(userInputs.menus.values.any { it != 0 }) {UserPrompt.ERROR_MENU}
 
-    private fun calculateDdayDiscount(day: Int) =
-        if (day < 26) (day - 1) * Discount.CHRISTMAS_D_DAY.price + 1000 else 0
-
-    private fun calculateWeekOrWeekendDiscount(discount: Discount, category: Menus, userMenus: Map<String, Int>) =
-        userMenus.filter { category.menu.keys.contains(it.key) }.values.sum() * discount.price
-
-    fun calculateTotalPrice(userMenus: Map<String, Int>): Int =
-        userMenus.entries.sumOf { (menu, quantity) -> Menus.allMenu[menu]!! * quantity }
-
-
-    fun calculateTotalBenefits(totalPrice: Int, day: Int, userMenus: Map<String, Int>) : Map<Discount, Int>{
-        benefits[Discount.FREE_ITEM] = calculateFreeItem(totalPrice)
-        benefits[Discount.SPECIAL] = calculateSpecialDiscount(day)
-        benefits[Discount.CHRISTMAS_D_DAY] = calculateDdayDiscount(day)
-
-
-        val dayOfWeek = LocalDate.of(LocalDate.now().year, 12, day).dayOfWeek.value
-        when (dayOfWeek) {
-            5, 6 -> benefits[Discount.WEEKEND] = calculateWeekOrWeekendDiscount(Discount.WEEKEND, Menus.MAIN_MENU, userMenus)
-            else -> benefits[Discount.WEEKDAY] = calculateWeekOrWeekendDiscount(Discount.WEEKDAY, Menus.DESSERT, userMenus)
-        }
-
-        return benefits
+        calculateBenefits()
     }
 
-    fun calculateTotalBenefitPrice() = benefits.values.sum()
+    private fun calculateFreeItem() =
+        if (userInputs.totalPrice >= 120000) Discount.FREE_ITEM.price else 0
+
+    private fun calculateSpecialDiscount() =
+        if (userInputs.visitDay in starDay) Discount.SPECIAL.price else 0
+
+    private fun calculateDdayDiscount() =
+        if (userInputs.visitDay < 26) (userInputs.visitDay - 1) * Discount.CHRISTMAS_D_DAY.price + 1000 else 0
+
+    private fun calculateWeekOrWeekendDiscount(discount: Discount, category: Menus) =
+        userInputs.menus.filter { category.menu.keys.contains(it.key) }.values.sum() * discount.price
+
+    private fun selectWeekOrWeekend(dayOfWeek: Int){
+        when (dayOfWeek) {
+            5, 6 -> benefits[Discount.WEEKEND] = calculateWeekOrWeekendDiscount(Discount.WEEKEND, Menus.MAIN_MENU)
+            else -> benefits[Discount.WEEKDAY] = calculateWeekOrWeekendDiscount(Discount.WEEKDAY, Menus.DESSERT)
+        }
+    }
+    private fun calculateBenefits(){
+
+        benefits[Discount.FREE_ITEM] = calculateFreeItem()
+        benefits[Discount.SPECIAL] = calculateSpecialDiscount()
+        benefits[Discount.CHRISTMAS_D_DAY] = calculateDdayDiscount()
+
+        val dayOfWeek = LocalDate.of(LocalDate.now().year, 12, userInputs.visitDay).dayOfWeek.value
+        selectWeekOrWeekend(dayOfWeek)
+
+    }
+
+    fun getBenefits() = benefits
+
+
 }

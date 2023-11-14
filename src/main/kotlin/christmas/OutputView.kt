@@ -26,15 +26,15 @@ class OutputView() {
     }
 
 
-    fun printDiscountedTotalPrice(totalCost: Int, totalBenefitPrice: Int, benefits: Map<Discount, Int>) {
+    fun printDiscountedTotalPrice(userCalculations: UserCalculations) {
 
         UserPrompt.TOTAL_BENEFIT.printMessage()
-        println("${"%,d".format(totalBenefitPrice * -1)}원")
+        println("${"%,d".format(userCalculations.totalBenefitPrice * -1)}원")
 
         UserPrompt.EXPECTED_PAYMENT.printMessage()
-        val discountedTotal = totalCost - totalBenefitPrice
-        val freeItemDiscount = if (benefits[Discount.FREE_ITEM] != 0) 25000 else 0
-        println("${"%,d".format(discountedTotal + freeItemDiscount)}원")
+
+        val freeItemDiscount = if (userCalculations.benefits[Discount.FREE_ITEM] != 0) 25000 else 0
+        println("${"%,d".format(userCalculations.discountedPrice + freeItemDiscount)}원")
     }
 
     fun printBadge(totalBenefitPrice: Int) {

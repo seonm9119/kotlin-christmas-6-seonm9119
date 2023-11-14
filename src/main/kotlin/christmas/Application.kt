@@ -4,8 +4,6 @@ fun main() {
 
     val controller = Controller()
 
-    controller.processUserInfo()
-    controller.processBenefits()
-
+    controller.runEventPlanner()
 
 }
