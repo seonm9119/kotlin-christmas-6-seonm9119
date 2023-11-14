@@ -11,9 +11,9 @@ class InputView {
                 throw IllegalArgumentException()
 
             } catch (e: NumberFormatException) {
-                UserPrompt.ERROR.printMessage()
+                UserPrompt.ERROR_DAY.printMessage()
             }catch (e: IllegalArgumentException){
-                UserPrompt.ERROR.printMessage()
+                UserPrompt.ERROR_DAY.printMessage()
             }
         }
     }
@@ -41,11 +41,11 @@ class InputView {
                 return userInput.toMap()
 
             } catch (e: NumberFormatException){
-                UserPrompt.ERROR.printMessage()
+                UserPrompt.ERROR_MENU.printMessage()
             } catch (e: IndexOutOfBoundsException){
-                UserPrompt.ERROR.printMessage()
+                UserPrompt.ERROR_MENU.printMessage()
             } catch (e: IllegalArgumentException) {
-                UserPrompt.ERROR.printMessage()
+                UserPrompt.ERROR_MENU.printMessage()
             }
         }
     }

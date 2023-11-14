@@ -43,7 +43,7 @@ class ApplicationTest : NsTest() {
     fun `주문 예외 테스트`() {
         assertSimpleTest {
             runException("3", "제로콜라-a")
-            assertThat(output()).contains("[ERROR-3] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
+            assertThat(output()).contains("[ERROR] 유효하지 않은 주문입니다. 다시 입력해 주세요.")
         }
     }
 
