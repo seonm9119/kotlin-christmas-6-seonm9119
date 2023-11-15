@@ -1,5 +1,6 @@
 package christmas
 import java.time.LocalDate
+import java.time.Month
 
 class ChristmasDiscountCalculator(private val userInputs: UserInputs) {
 
@@ -8,7 +9,8 @@ class ChristmasDiscountCalculator(private val userInputs: UserInputs) {
 
     init {
 
-        if (userInputs.totalPrice >= 10000)
+        val december31Date = LocalDate.of(2023, Month.DECEMBER, 31)
+        if (userInputs.totalPrice >= 10000 && LocalDate.now().isBefore(december31Date))
             calculateBenefits()
     }
 
