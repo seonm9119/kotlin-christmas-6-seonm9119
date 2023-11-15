@@ -3,16 +3,13 @@ import java.time.LocalDate
 
 class ChristmasDiscountCalculator(private val userInputs: UserInputs) {
 
-    private val starDay = listOf(3,10,17,24,31)
+    private val starDay = listOf(3,10,17,24,25,31)
     private val benefits = Discount.entries.associateWith { 0 }.toMutableMap()
 
     init {
 
-        require(userInputs.visitDay in 1..31) {UserPrompt.ERROR_DAY }
-        require(userInputs.menus.values.sum()  < 21) {UserPrompt.ERROR_MENU}
-        require(userInputs.menus.values.any { it != 0 }) {UserPrompt.ERROR_MENU}
-
-        calculateBenefits()
+        if (userInputs.totalPrice >= 10000)
+            calculateBenefits()
     }
 
     private fun calculateFreeItem() =

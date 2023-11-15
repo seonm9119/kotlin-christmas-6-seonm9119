@@ -2,53 +2,54 @@ package christmas
 
 import camp.nextstep.edu.missionutils.Console.readLine
 class InputView {
+
+    private fun checkValidityMenu(userMenus: List<Pair<String, Int>> ) =
+        MenuValidityRulesAndMessage.entries.forEach { require(it.rule(userMenus)) { it.message } }
+
+
+    private fun processInputs(): Map<String, Int> {
+        val userMenus = readLine()?.split(',')?.map {
+            val (menu, quantity) = it.split('-')
+            menu to quantity.toInt()
+        } ?: throw NumberFormatException()
+
+        checkValidityMenu(userMenus)
+        return userMenus.toMap()
+    }
+
+
     fun readDate(): Int {
         while (true) {
             UserPrompt.EXPECTED_DAY.printMessage()
 
             try {
-                return readLine().toInt().takeIf { it in 1..31 } ?:
-                throw IllegalArgumentException()
-
+                return readLine().toInt().takeIf { it in 1..31 } ?: throw IllegalArgumentException()
             } catch (e: NumberFormatException) {
-                UserPrompt.ERROR_DAY.printMessage()
+                ErrorMessages.ERROR_DAY.printMessage()
             }catch (e: IllegalArgumentException){
-                UserPrompt.ERROR_DAY.printMessage()
+                ErrorMessages.ERROR_DAY.printMessage()
             }
         }
     }
 
 
     fun readMenu(): Map<String, Int> {
-
         while (true) {
             UserPrompt.USER_MENU.printMessage()
             try {
-                val userInput = readLine().split(',')
-                    .map {
-                        val (menu, quantity) = it.split('-')
-                        menu to quantity.toInt()
-                    }
-
-                val duplicateMenus = userInput.groupingBy { it.first }
-                    .eachCount()
-                    .filter { it.value > 1 }
-
-                if (duplicateMenus.isNotEmpty()) throw IllegalArgumentException()
-                if (userInput.sumOf { it.second } > 21) throw IllegalArgumentException()
-                if (userInput.any { it.second == 0 }) throw IllegalArgumentException()
-
-                return userInput.toMap()
-
-            } catch (e: NumberFormatException){
-                UserPrompt.ERROR_MENU.printMessage()
-            } catch (e: IndexOutOfBoundsException){
-                UserPrompt.ERROR_MENU.printMessage()
+                return processInputs()
+            } catch (e: NumberFormatException) {
+                ErrorMessages.ERROR_MENU.printMessage()
+            } catch (e: IndexOutOfBoundsException) {
+                ErrorMessages.ERROR_MENU.printMessage()
             } catch (e: IllegalArgumentException) {
-                UserPrompt.ERROR_MENU.printMessage()
+                println(e.message)
             }
         }
     }
+
+
+
 
 
 }

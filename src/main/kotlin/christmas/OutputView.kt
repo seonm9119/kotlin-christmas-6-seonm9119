@@ -7,6 +7,7 @@ class OutputView() {
         userMenus.forEach { (menu, quantity) -> println("$menu $quantity 개") }
     }
 
+
     fun printTotalPrice(totalCost: Int) {
         UserPrompt.TOTAL_COST.printMessage()
         println("${"%,d".format(totalCost)}원")
@@ -16,12 +17,12 @@ class OutputView() {
     fun printBenefits(benefits: Map<Discount, Int>) {
 
         UserPrompt.FREE_ITEM.printMessage()
-        println(if (benefits[Discount.FREE_ITEM] != 0) "샴페인 1개" else UserPrompt.NONE)
+        println(if (benefits[Discount.FREE_ITEM] != 0) "샴페인 1개" else UserPrompt.NONE.message)
 
         UserPrompt.BENEFITS.printMessage()
         if (benefits.values.all { it == 0 }) UserPrompt.NONE.printMessage()
         else benefits.filterValues { it != 0 }.forEach { (key, value) ->
-            println("${key}: ${"%,d".format(value * -1)}원")
+            println("${key.message}: ${"%,d".format(value * -1)}원")
         }
     }
 
@@ -36,6 +37,7 @@ class OutputView() {
         val freeItemDiscount = if (userCalculations.benefits[Discount.FREE_ITEM] != 0) 25000 else 0
         println("${"%,d".format(userCalculations.discountedPrice + freeItemDiscount)}원")
     }
+
 
     fun printBadge(totalBenefitPrice: Int) {
         UserPrompt.BADGE.printMessage()
